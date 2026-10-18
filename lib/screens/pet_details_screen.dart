@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../data/mock_data.dart';
 
@@ -34,7 +35,13 @@ class PetDetailsScreen extends StatelessWidget {
         title: const Text('Карточка питомца'),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Редактирование будет доступно позже'),
+                ),
+              );
+            },
             icon: const Icon(Icons.edit_outlined),
             tooltip: 'Редактировать',
           ),
@@ -60,9 +67,10 @@ class PetDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     name,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -83,11 +91,23 @@ class PetDetailsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          Text(
-            'Визиты к ветеринару',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Визиты к ветеринару',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ),
+              FilledButton.icon(
+                onPressed: () => context.push('/pets/vet-visits/new'),
+                icon: const Icon(Icons.add),
+                label: const Text('Добавить'),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           Card(
@@ -121,9 +141,10 @@ class PetDetailsScreen extends StatelessWidget {
           const SizedBox(height: 20),
           Text(
             'Прививки',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           Card(
@@ -182,9 +203,7 @@ class _InfoRow extends StatelessWidget {
           ),
           Text(
             value,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ],
       ),
