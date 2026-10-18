@@ -1,47 +1,54 @@
 class MockData {
   static const pets = [
     {
-      'name': 'Мия',
+      'id': 1,
+      'name': 'Мися',
       'species': 'Кошка',
       'birthDate': '12.04.2021',
     },
     {
+      'id': 2,
       'name': 'Барни',
       'species': 'Собака',
       'birthDate': '28.09.2019',
     },
     {
+      'id': 3,
       'name': 'Луна',
       'species': 'Кошка',
       'birthDate': '05.06.2022',
     },
     {
+      'id': 4,
       'name': 'Макс',
       'species': 'Собака',
       'birthDate': '17.01.2020',
     },
     {
+      'id': 5,
       'name': 'Оскар',
       'species': 'Кролик',
       'birthDate': '23.11.2022',
     },
     {
+      'id': 6,
       'name': 'Белла',
       'species': 'Собака',
       'birthDate': '09.03.2021',
     },
     {
+      'id': 7,
       'name': 'Чарли',
       'species': 'Кот',
       'birthDate': '15.08.2020',
     },
     {
-      'name': 'Нала',
+      'id': 8,
+      'name': 'Рада',
       'species': 'Собака',
       'birthDate': '30.10.2023',
     },
   ];
-
   static const vaccinations = [
     {
       'petName': 'Мия',

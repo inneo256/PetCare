@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class PetCard extends StatelessWidget {
@@ -5,6 +6,7 @@ class PetCard extends StatelessWidget {
   final String species;
   final String birthDate;
   final IconData icon;
+  final VoidCallback onTap;
 
   const PetCard({
     super.key,
@@ -12,6 +14,7 @@ class PetCard extends StatelessWidget {
     required this.species,
     required this.birthDate,
     required this.icon,
+    required this.onTap,
   });
 
   @override
@@ -32,14 +35,11 @@ class PetCard extends StatelessWidget {
         ),
         title: Text(
           name,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
-        subtitle: Text(
-          '$species • Дата рождения: $birthDate',
-        ),
+        subtitle: Text('$species • Дата рождения: $birthDate'),
         trailing: const Icon(Icons.chevron_right),
+        onTap: onTap,
       ),
     );
   }

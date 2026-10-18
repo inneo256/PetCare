@@ -1,11 +1,33 @@
+
 import 'package:flutter/material.dart';
 
+import '../data/mock_data.dart';
+
 class PetDetailsScreen extends StatelessWidget {
-  const PetDetailsScreen({super.key});
+  final int id;
+
+  const PetDetailsScreen({
+    super.key,
+    required this.id,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
+    final pet = MockData.pets.firstWhere(
+          (pet) => pet['id'].toString() == id.toString(),
+      orElse: () => <String, String>{
+        'id': id.toString(),
+        'name': 'Неизвестный питомец',
+        'species': 'Не указано',
+        'birthDate': 'Не указана',
+      },
+    );
+
+    final name = pet['name'].toString();
+    final species = pet['species'].toString();
+    final birthDate = pet['birthDate'].toString();
 
     return Scaffold(
       appBar: AppBar(
@@ -14,6 +36,7 @@ class PetDetailsScreen extends StatelessWidget {
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.edit_outlined),
+            tooltip: 'Редактировать',
           ),
         ],
       ),
@@ -36,24 +59,20 @@ class PetDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Мия',
+                    name,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Кошка',
+                    species,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 20),
-                  const _InfoRow(
+                  _InfoRow(
                     label: 'Дата рождения',
-                    value: '12.04.2021',
-                  ),
-                  const _InfoRow(
-                    label: 'Возраст',
-                    value: '5 лет',
+                    value: birthDate,
                   ),
                   const _InfoRow(
                     label: 'Владелец',
@@ -81,9 +100,7 @@ class PetDetailsScreen extends StatelessWidget {
                 ),
               ),
               title: const Text('Плановый осмотр'),
-              subtitle: const Text(
-                '15.09.2026 • Диагноз: Здорова',
-              ),
+              subtitle: const Text('15.09.2026 • Диагноз: Здорова'),
               trailing: const Text('350 MDL'),
             ),
           ),
@@ -97,9 +114,7 @@ class PetDetailsScreen extends StatelessWidget {
                 ),
               ),
               title: const Text('Проблемы с пищеварением'),
-              subtitle: const Text(
-                '20.05.2026 • Диагноз: Гастрит',
-              ),
+              subtitle: const Text('20.05.2026 • Диагноз: Гастрит'),
               trailing: const Text('480 MDL'),
             ),
           ),
