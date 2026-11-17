@@ -19,19 +19,15 @@ class PetDetailsScreen extends StatelessWidget {
         title: const Text('Карточка питомца'),
         actions: [
           IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Редактирование будет доступно позже'),
-                ),
-              );
-            },
+            onPressed:
+                model.isLoading || model.error != null || model.byId(id) == null
+                ? null
+                : () => context.push('/pets/$id/edit'),
             icon: const Icon(Icons.edit_outlined),
             tooltip: 'Редактировать',
           ),
         ],
       ),
-
       body: model.isLoading
           ? const Center(child: CircularProgressIndicator())
           : model.error != null

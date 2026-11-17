@@ -20,34 +20,54 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/registration',
-      builder: (context, state) => const RegistrationPage(),
+      builder: (context, state) =>
+      const RegistrationPage(),
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return AppShell(navigationShell: navigationShell);
+        return AppShell(
+          navigationShell: navigationShell,
+        );
       },
       branches: [
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: '/pets',
-              builder: (context, state) => const PetsScreen(),
+              builder: (context, state) =>
+              const PetsScreen(),
               routes: [
                 GoRoute(
                   path: 'new',
-                  builder: (context, state) => const PetFormScreen(),
-                ),
-                GoRoute(
-                  path: ':id',
-                  builder: (context, state) {
-                    final id = int.parse(state.pathParameters['id']!);
-                    return PetDetailsScreen(id: id);
-                  },
+                  builder: (context, state) =>
+                  const PetFormScreen(),
                 ),
                 GoRoute(
                   path: 'vet-visits/new',
                   builder: (context, state) =>
                   const VetVisitFormScreen(),
+                ),
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) {
+                    final id = int.parse(
+                      state.pathParameters['id']!,
+                    );
+                    return PetDetailsScreen(id: id);
+                  },
+                  routes: [
+                    GoRoute(
+                      path: 'edit',
+                      builder: (context, state) {
+                        final id = int.parse(
+                          state.pathParameters['id']!,
+                        );
+                        return PetFormScreen(
+                          petId: id,
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -66,7 +86,8 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/profile',
-              builder: (context, state) => const ProfileScreen(),
+              builder: (context, state) =>
+              const ProfileScreen(),
             ),
           ],
         ),
