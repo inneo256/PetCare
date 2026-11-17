@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -12,20 +11,16 @@ class PetsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final petModel = context.watch<PetModel>();
+    final model = context.watch<PetModel>();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Мои питомцы'),
         actions: [
-
-          // Consumer обновляет только счётчик.
+          // Счётчик питомцев через Consumer.
           Consumer<PetModel>(
             builder: (context, model, child) {
-              return Badge(
-                label: Text('${model.count}'),
-                child: child!,
-              );
+              return Badge(label: Text('${model.count}'), child: child!);
             },
             child: const Icon(Icons.pets_outlined),
           ),
@@ -42,62 +37,108 @@ class PetsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'Поиск питомца',
-              prefixIcon: const Icon(Icons.search),
-              border: const OutlineInputBorder(),
-              filled: true,
-              fillColor: colorScheme.surfaceContainerHighest,
-            ),
-          ),
-          const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
+
+      // Три состояния: загрузка, ошибка, данные.
+      body: model.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : model.error != null
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: colorScheme.error,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      model.error!,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        context.read<PetModel>().load();
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Повторить'),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
               children: [
-                FilterChip(
-                  label: const Text('Все'),
-                  selected: true,
-                  onSelected: (_) {},
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Поиск питомца',
+                    prefixIcon: const Icon(Icons.search),
+                    border: const OutlineInputBorder(),
+                    filled: true,
+                    fillColor: colorScheme.surfaceContainerHighest,
+                  ),
                 ),
-                const SizedBox(width: 8),
-                FilterChip(
-                  label: const Text('Собаки'),
-                  selected: false,
-                  onSelected: (_) {},
+                const SizedBox(height: 16),
+
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      FilterChip(
+                        label: const Text('Все'),
+                        selected: true,
+                        onSelected: (_) {},
+                      ),
+                      const SizedBox(width: 8),
+                      FilterChip(
+                        label: const Text('Собаки'),
+                        selected: false,
+                        onSelected: (_) {},
+                      ),
+                      const SizedBox(width: 8),
+                      FilterChip(
+                        label: const Text('Кошки'),
+                        selected: false,
+                        onSelected: (_) {},
+                      ),
+                      const SizedBox(width: 8),
+                      FilterChip(
+                        label: const Text('Кролики'),
+                        selected: false,
+                        onSelected: (_) {},
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 8),
-                FilterChip(
-                  label: const Text('Кошки'),
-                  selected: false,
-                  onSelected: (_) {},
-                ),
-                const SizedBox(width: 8),
-                FilterChip(
-                  label: const Text('Кролики'),
-                  selected: false,
-                  onSelected: (_) {},
+                const SizedBox(height: 20),
+
+                if (model.pets.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text('Питомцев пока нет'),
+                    ),
+                  ),
+
+                // Карточки питомцев из Repository.
+                ...model.pets.map(
+                  (pet) => PetCard(
+                    key: ValueKey(pet.id),
+                    name: pet.name,
+                    species: pet.species,
+                    birthDate: pet.birthDate,
+                    icon: Icons.pets,
+                    onTap: () => context.push('/pets/${pet.id}'),
+                  ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 20),
 
-          ...petModel.pets.map(
-                (pet) => PetCard(
-              name: pet['name'].toString(),
-              species: pet['species'].toString(),
-              birthDate: pet['birthDate'].toString(),
-              icon: Icons.pets,
-              onTap: () => context.push('/pets/${pet['id']}'),
-            ),
-          ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/pets/new'),
         icon: const Icon(Icons.add),

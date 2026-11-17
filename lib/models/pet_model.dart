@@ -1,60 +1,46 @@
-
 import 'package:flutter/foundation.dart';
-import '../data/mock_data.dart';
+
+import '../data/pet.dart';
+import '../data/pet_repository.dart';
+import '../data/result.dart';
 
 class PetModel extends ChangeNotifier {
+  final PetRepository repository;
 
-  final List<Map<String, dynamic>> _pets =
-  MockData.pets.map((pet) {
-    return <String, dynamic>{
-      'id': pet.id,
-      'name': pet.name,
-      'species': pet.species,
-      'birthDate': pet.birthDate,
-    };
-  }).toList();
+  PetModel(this.repository);
 
+  List<Pet> _pets = [];
+  bool _isLoading = false;
+  String? _error;
 
-  // Коллекция только для чтения.
-  List<Map<String, dynamic>> get pets =>
-      List.unmodifiable(
-        _pets.map((pet) => Map<String, dynamic>.unmodifiable(pet)),
-      );
-
-  // Общее количество питомцев.
+  List<Pet> get pets => List.unmodifiable(_pets);
   int get count => _pets.length;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
 
-  // Поиск питомца по ID.
-  Map<String, dynamic>? byId(int id) {
+  Pet? byId(int id) {
     for (final pet in _pets) {
-      if (pet['id'] == id) {
-        return Map<String, dynamic>.unmodifiable(pet);
-      }
+      if (pet.id == id) return pet;
     }
     return null;
   }
 
-  // Добавление питомца.
-  void add(Map<String, dynamic> pet) {
-    _pets.add(Map<String, dynamic>.from(pet));
+  Future<void> load() async {
+    _isLoading = true;
+    _error = null;
     notifyListeners();
-  }
 
-  // Удаление питомца.
-  void remove(int id) {
-    _pets.removeWhere((pet) => pet['id'] == id);
-    notifyListeners();
-  }
+    final result = await repository.fetchAll();
 
-  // Обновление питомца.
-  void update(Map<String, dynamic> updatedPet) {
-    final index = _pets.indexWhere(
-          (pet) => pet['id'] == updatedPet['id'],
-    );
-
-    if (index != -1) {
-      _pets[index] = Map<String, dynamic>.from(updatedPet);
-      notifyListeners();
+    switch (result) {
+      case Ok<List<Pet>>():
+        _pets = result.value;
+        _error = null;
+      case Err<List<Pet>>():
+        _error = result.msg;
     }
+
+    _isLoading = false;
+    notifyListeners();
   }
 }
