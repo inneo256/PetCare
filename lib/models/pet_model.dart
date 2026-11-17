@@ -3,10 +3,17 @@ import 'package:flutter/foundation.dart';
 import '../data/mock_data.dart';
 
 class PetModel extends ChangeNotifier {
+
   final List<Map<String, dynamic>> _pets =
-  MockData.pets
-      .map((pet) => Map<String, dynamic>.from(pet))
-      .toList();
+  MockData.pets.map((pet) {
+    return <String, dynamic>{
+      'id': pet.id,
+      'name': pet.name,
+      'species': pet.species,
+      'birthDate': pet.birthDate,
+    };
+  }).toList();
+
 
   // Коллекция только для чтения.
   List<Map<String, dynamic>> get pets =>
