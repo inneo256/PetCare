@@ -1,3 +1,4 @@
+
 import 'package:flutter/foundation.dart';
 
 import '../data/pet.dart';
@@ -42,5 +43,60 @@ class PetModel extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  // Добавление питомца.
+  // null — успех, String — ошибка.
+  Future<String?> add(Pet pet) async {
+    final result = await repository.create(pet);
+
+    switch (result) {
+      case Ok<Pet>():
+        _pets = [..._pets, result.value];
+        notifyListeners();
+        return null;
+
+      case Err<Pet>():
+        return result.msg;
+    }
+  }
+
+  // Обновление питомца.
+  Future<String?> update(Pet pet) async {
+    final result = await repository.update(pet);
+
+    switch (result) {
+      case Ok<Pet>():
+        _pets = [
+          for (final item in _pets)
+            if (item.id == result.value.id)
+              result.value
+            else
+              item,
+        ];
+        notifyListeners();
+        return null;
+
+      case Err<Pet>():
+        return result.msg;
+    }
+  }
+
+  // Удаление питомца.
+  Future<String?> remove(int id) async {
+    final result = await repository.delete(id);
+
+    switch (result) {
+      case Ok<void>():
+        _pets = [
+          for (final pet in _pets)
+            if (pet.id != id) pet,
+        ];
+        notifyListeners();
+        return null;
+
+      case Err<void>():
+        return result.msg;
+    }
   }
 }

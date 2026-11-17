@@ -38,7 +38,7 @@ class PetsScreen extends StatelessWidget {
         ],
       ),
 
-      // Три состояния: загрузка, ошибка, данные.
+      // Загрузка, ошибка или список питомцев.
       body: model.isLoading
           ? const Center(child: CircularProgressIndicator())
           : model.error != null
@@ -74,6 +74,7 @@ class PetsScreen extends StatelessWidget {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                // Поиск питомца.
                 TextField(
                   decoration: InputDecoration(
                     hintText: 'Поиск питомца',
@@ -85,6 +86,7 @@ class PetsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
+                // Фильтры.
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -125,15 +127,82 @@ class PetsScreen extends StatelessWidget {
                     ),
                   ),
 
-                // Карточки питомцев из Repository.
+                // Карточки питомцев с удалением свайпом.
                 ...model.pets.map(
-                  (pet) => PetCard(
+                  (pet) => Dismissible(
                     key: ValueKey(pet.id),
-                    name: pet.name,
-                    species: pet.species,
-                    birthDate: pet.birthDate,
-                    icon: Icons.pets,
-                    onTap: () => context.push('/pets/${pet.id}'),
+                    direction: DismissDirection.endToStart,
+
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(right: 24),
+                      color: colorScheme.errorContainer,
+                      child: Icon(
+                        Icons.delete_outline,
+                        color: colorScheme.onErrorContainer,
+                      ),
+                    ),
+
+                    confirmDismiss: (_) async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: const Text('Удалить питомца?'),
+                          content: Text(
+                            'Вы действительно хотите удалить '
+                            '${pet.name}?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(dialogContext, false);
+                              },
+                              child: const Text('Отмена'),
+                            ),
+                            FilledButton(
+                              onPressed: () {
+                                Navigator.pop(dialogContext, true);
+                              },
+                              child: const Text('Удалить'),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmed != true || !context.mounted) {
+                        return false;
+                      }
+
+                      // Удаляем через модель и Repository.
+                      final error = await context.read<PetModel>().remove(
+                        pet.id,
+                      );
+
+                      if (!context.mounted) {
+                        return false;
+                      }
+
+                      if (error != null) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(SnackBar(content: Text(error)));
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Питомец ${pet.name} удалён')),
+                        );
+                      }
+
+                      // Список уже обновился через
+                      // notifyListeners().
+                      return false;
+                    },
+
+                    child: PetCard(
+                      name: pet.name,
+                      species: pet.species,
+                      birthDate: pet.birthDate,
+                      icon: Icons.pets,
+                      onTap: () => context.push('/pets/${pet.id}'),
+                    ),
                   ),
                 ),
               ],
