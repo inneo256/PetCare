@@ -24,7 +24,19 @@ class PetsScreen extends StatelessWidget {
             },
             child: const Icon(Icons.pets_outlined),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 8),
+
+          // Обновление списка для проверки сбоя сети.
+          IconButton(
+            onPressed: model.isLoading
+                ? null
+                : () {
+                    context.read<PetModel>().load();
+                  },
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Обновить список',
+          ),
+
           IconButton(
             onPressed: () => context.push('/profile'),
             icon: const Icon(Icons.person_outline),
@@ -191,7 +203,7 @@ class PetsScreen extends StatelessWidget {
                         );
                       }
 
-                      // Список уже обновился через
+                      // Список обновляется через
                       // notifyListeners().
                       return false;
                     },

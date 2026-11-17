@@ -1,9 +1,27 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-class ProfileScreen extends StatelessWidget {
+import '../data/mock_pet_repository.dart';
+import '../models/pet_model.dart';
+
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool _simulateError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Синхронизируем состояние с Repository.
+    // При возвращении на экран настройка не сбросится.
+    _simulateError = context.read<MockPetRepository>().simulateError;
+  }
 
   Future<void> _confirmLogout(BuildContext context) async {
     final shouldLogout = await showDialog<bool>(
@@ -29,9 +47,28 @@ class ProfileScreen extends StatelessWidget {
     }
   }
 
+  void _toggleNetworkError(bool value) {
+    setState(() {
+      _simulateError = value;
+    });
+
+    context.read<MockPetRepository>().simulateError = value;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          value
+              ? 'Симуляция сбоя сети включена'
+              : 'Симуляция сбоя сети выключена',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final petCount = context.watch<PetModel>().count;
 
     return Scaffold(
       appBar: AppBar(
@@ -41,7 +78,10 @@ class ProfileScreen extends StatelessWidget {
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Редактирование профиля будет доступно позже'),
+                  content: Text(
+                    'Редактирование профиля '
+                    'будет доступно позже',
+                  ),
                 ),
               );
             },
@@ -70,36 +110,35 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     'Инна Журак',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineSmall
+                    style: Theme.of(context).textTheme.headlineSmall
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'inna@example.com',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                    style: Theme.of(context).textTheme.bodyLarge
+                        ?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 20),
+
           Card(
             child: Column(
               children: [
                 ListTile(
                   leading: const Icon(Icons.pets_outlined),
                   title: const Text('Мои питомцы'),
-                  subtitle: const Text('8 питомцев'),
+                  subtitle: Text('$petCount питомцев'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     context.go('/pets');
                   },
                 ),
                 const Divider(height: 1),
+
                 ListTile(
                   leading: const Icon(Icons.notifications_outlined),
                   title: const Text('Уведомления'),
@@ -108,12 +147,16 @@ class ProfileScreen extends StatelessWidget {
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Настройка уведомлений будет доступна позже'),
+                        content: Text(
+                          'Настройка уведомлений '
+                          'будет доступна позже',
+                        ),
                       ),
                     );
                   },
                 ),
                 const Divider(height: 1),
+
                 ListTile(
                   leading: const Icon(Icons.settings_outlined),
                   title: const Text('Настройки'),
@@ -130,6 +173,19 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
+
+          // Переключатель аварии для задания 7.
+          Card(
+            child: SwitchListTile(
+              secondary: const Icon(Icons.wifi_off_outlined),
+              title: const Text('Симулировать сбой сети'),
+              subtitle: const Text('Проверка обработки ошибок Repository'),
+              value: _simulateError,
+              onChanged: _toggleNetworkError,
+            ),
+          ),
+          const SizedBox(height: 20),
+
           OutlinedButton.icon(
             onPressed: () => _confirmLogout(context),
             icon: const Icon(Icons.logout),

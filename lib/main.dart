@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'data/mock_pet_repository.dart';
+import 'data/pet_repository.dart';
 import 'models/pet_model.dart';
 import 'router.dart';
-
-import 'package:provider/provider.dart';
-
-import 'data/pet_repository.dart';
-import 'data/mock_pet_repository.dart';
-import 'models/pet_model.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
-        Provider<PetRepository>(create: (_) => MockPetRepository()),
+        Provider<MockPetRepository>(create: (_) => MockPetRepository()),
+        Provider<PetRepository>(
+          create: (context) => context.read<MockPetRepository>(),
+        ),
         ChangeNotifierProvider<PetModel>(
           create: (context) => PetModel(context.read<PetRepository>())..load(),
         ),
