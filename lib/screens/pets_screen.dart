@@ -1,8 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-import '../data/mock_data.dart';
+import '../models/pet_model.dart';
 import '../widgets/pet_card.dart';
 
 class PetsScreen extends StatelessWidget {
@@ -11,11 +12,24 @@ class PetsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final petModel = context.watch<PetModel>();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Мои питомцы'),
         actions: [
+
+          // Consumer обновляет только счётчик.
+          Consumer<PetModel>(
+            builder: (context, model, child) {
+              return Badge(
+                label: Text('${model.count}'),
+                child: child!,
+              );
+            },
+            child: const Icon(Icons.pets_outlined),
+          ),
+          const SizedBox(width: 16),
           IconButton(
             onPressed: () => context.push('/profile'),
             icon: const Icon(Icons.person_outline),
@@ -72,7 +86,8 @@ class PetsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          ...MockData.pets.map(
+
+          ...petModel.pets.map(
                 (pet) => PetCard(
               name: pet['name'].toString(),
               species: pet['species'].toString(),

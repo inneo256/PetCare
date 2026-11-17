@@ -1,8 +1,10 @@
+import 'package:provider/provider.dart';
+import '../models/pet_model.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../data/mock_data.dart';
+
 
 class PetDetailsScreen extends StatelessWidget {
   final int id;
@@ -16,15 +18,20 @@ class PetDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final pet = MockData.pets.firstWhere(
-          (pet) => pet['id'].toString() == id.toString(),
-      orElse: () => <String, String>{
-        'id': id.toString(),
-        'name': 'Неизвестный питомец',
-        'species': 'Не указано',
-        'birthDate': 'Не указана',
-      },
-    );
+    final petModel = context.watch<PetModel>();
+    final pet = petModel.byId(id);
+
+    if (pet == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Карточка питомца'),
+        ),
+        body: const Center(
+          child: Text('Питомец не найден'),
+        ),
+      );
+    }
+
 
     final name = pet['name'].toString();
     final species = pet['species'].toString();

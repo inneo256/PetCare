@@ -1,9 +1,17 @@
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'models/pet_model.dart';
 import 'router.dart';
 
 void main() {
-  runApp(const PetCareApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => PetModel(),
+      child: const PetCareApp(),
+    ),
+  );
 }
 
 class PetCareApp extends StatelessWidget {
