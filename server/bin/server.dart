@@ -1,8 +1,3 @@
-﻿// PAM backend template - Dart/Shelf reference implementation.
-//
-// Start:  server pub get && server run
-// Env:    PORT (default 8080), JWT_SECRET (default dev-secret-change-me)
-
 import 'dart:io';
 
 import 'package:shelf/shelf.dart';
@@ -14,25 +9,40 @@ import 'package:server/db.dart';
 import 'package:server/errors.dart';
 import 'package:server/files.dart';
 import 'package:server/notes.dart';
+import 'package:server/pets.dart';
 
 Future<void> main() async {
   final port = int.tryParse(Platform.environment['PORT'] ?? '') ?? 8080;
 
-  initDb('app.db'); // creates app.db + schema on first start
-  initFileStorage('uploads'); // creates uploads/ on first start
+  initDb('app.db');
+  initFileStorage('uploads');
 
   final router =
       Router(notFoundHandler: (Request r) => notFound('Route not found'))
+
+        // Проверка доступности сервера.
         ..get('/health', (Request r) => jsonResponse({'status': 'ok'}))
+
+        // Авторизация.
         ..post('/auth/register', register)
         ..post('/auth/login', login)
         ..get('/me', requireAuth(me))
-        // Notes: the example entity. Register your own routes the same way.
+
+        // Заметки — существующий функционал.
         ..get('/notes', requireAuth(listNotes))
         ..post('/notes', requireAuth(createNote))
         ..get('/notes/<id>', requireAuth(getNote))
         ..put('/notes/<id>', requireAuth(updateNote))
         ..delete('/notes/<id>', requireAuth(deleteNote))
+
+        // Питомцы — PetCare.
+        ..get('/pets', requireAuth(listPets))
+        ..post('/pets', requireAuth(createPet))
+        ..get('/pets/<id>', requireAuth(getPet))
+        ..put('/pets/<id>', requireAuth(updatePet))
+        ..delete('/pets/<id>', requireAuth(deletePet))
+
+        // Загрузка и получение файлов.
         ..post('/files', requireAuth(uploadFile))
         ..get('/files/<id>', downloadFile);
 
@@ -41,11 +51,15 @@ Future<void> main() async {
       .addMiddleware(_cors)
       .addHandler(router.call);
 
-  final server = await shelf_io.serve(handler, InternetAddress.anyIPv4, port);
+  final server = await shelf_io.serve(
+    handler,
+    InternetAddress.anyIPv4,
+    port,
+  );
+
   print('Backend listening on http://localhost:${server.port}');
 }
 
-// Permissive CORS so a Flutter *web* build can call the API during the labs.
 const _corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -56,7 +70,8 @@ Handler _cors(Handler inner) => (Request request) async {
       if (request.method == 'OPTIONS') {
         return Response.ok('', headers: _corsHeaders);
       }
+
       final response = await inner(request);
+
       return response.change(headers: _corsHeaders);
     };
-
