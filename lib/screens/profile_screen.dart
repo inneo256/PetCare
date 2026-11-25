@@ -1,30 +1,12 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../data/auth_api.dart';
-import '../data/mock_pet_repository.dart';
 import '../models/pet_model.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
-
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  bool _simulateError = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Синхронизируем состояние с Repository.
-    // При возвращении на экран настройка не сбросится.
-    _simulateError = context.read<MockPetRepository>().simulateError;
-  }
 
   Future<void> _confirmLogout(BuildContext context) async {
     final shouldLogout = await showDialog<bool>(
@@ -46,32 +28,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (shouldLogout == true && context.mounted) {
-      // Удаляем JWT-токен из SharedPreferences.
       await context.read<AuthApi>().logout();
 
       if (!context.mounted) return;
 
-      // Возвращаем пользователя на экран входа.
       context.go('/login');
     }
-  }
-
-  void _toggleNetworkError(bool value) {
-    setState(() {
-      _simulateError = value;
-    });
-
-    context.read<MockPetRepository>().simulateError = value;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          value
-              ? 'Симуляция сбоя сети включена'
-              : 'Симуляция сбоя сети выключена',
-        ),
-      ),
-    );
   }
 
   @override
@@ -89,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SnackBar(
                   content: Text(
                     'Редактирование профиля '
-                        'будет доступно позже',
+                    'будет доступно позже',
                   ),
                 ),
               );
@@ -126,9 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     'inna@example.com',
                     style: Theme.of(context).textTheme.bodyLarge
-                        ?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                        ?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -160,7 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SnackBar(
                         content: Text(
                           'Настройка уведомлений '
-                              'будет доступна позже',
+                          'будет доступна позже',
                         ),
                       ),
                     );
@@ -181,20 +141,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
               ],
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Переключатель аварии из L4.
-          Card(
-            child: SwitchListTile(
-              secondary: const Icon(Icons.wifi_off_outlined),
-              title: const Text('Симулировать сбой сети'),
-              subtitle: const Text(
-                'Проверка обработки ошибок Repository',
-              ),
-              value: _simulateError,
-              onChanged: _toggleNetworkError,
             ),
           ),
           const SizedBox(height: 20),
