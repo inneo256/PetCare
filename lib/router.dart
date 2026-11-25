@@ -11,87 +11,89 @@ import 'screens/vet_visit_form_screen.dart';
 import 'screens/vaccination_calendar_screen.dart';
 import 'screens/profile_screen.dart';
 
-final GoRouter appRouter = GoRouter(
-  initialLocation: '/login',
-  routes: [
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginScreen(),
-    ),
-    GoRoute(
-      path: '/registration',
-      builder: (context, state) =>
-      const RegistrationPage(),
-    ),
-    StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) {
-        return AppShell(
-          navigationShell: navigationShell,
-        );
-      },
-      branches: [
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/pets',
-              builder: (context, state) =>
-              const PetsScreen(),
-              routes: [
-                GoRoute(
-                  path: 'new',
-                  builder: (context, state) =>
-                  const PetFormScreen(),
-                ),
-                GoRoute(
-                  path: 'vet-visits/new',
-                  builder: (context, state) =>
-                  const VetVisitFormScreen(),
-                ),
-                GoRoute(
-                  path: ':id',
-                  builder: (context, state) {
-                    final id = int.parse(
-                      state.pathParameters['id']!,
-                    );
-                    return PetDetailsScreen(id: id);
-                  },
-                  routes: [
-                    GoRoute(
-                      path: 'edit',
-                      builder: (context, state) {
-                        final id = int.parse(
-                          state.pathParameters['id']!,
-                        );
-                        return PetFormScreen(
-                          petId: id,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/vaccinations',
-              builder: (context, state) =>
-              const VaccinationCalendarScreen(),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/profile',
-              builder: (context, state) =>
-              const ProfileScreen(),
-            ),
-          ],
-        ),
-      ],
-    ),
-  ],
-);
+late final GoRouter appRouter;
+
+void initRouter(bool loggedIn) {
+  appRouter = GoRouter(
+    initialLocation: loggedIn ? '/pets' : '/login',
+    routes: [
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/registration',
+        builder: (context, state) => const RegistrationPage(),
+      ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return AppShell(
+            navigationShell: navigationShell,
+          );
+        },
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/pets',
+                builder: (context, state) => const PetsScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) =>
+                    const PetFormScreen(),
+                  ),
+                  GoRoute(
+                    path: 'vet-visits/new',
+                    builder: (context, state) =>
+                    const VetVisitFormScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) {
+                      final id = int.parse(
+                        state.pathParameters['id']!,
+                      );
+                      return PetDetailsScreen(id: id);
+                    },
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (context, state) {
+                          final id = int.parse(
+                            state.pathParameters['id']!,
+                          );
+                          return PetFormScreen(
+                            petId: id,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/vaccinations',
+                builder: (context, state) =>
+                const VaccinationCalendarScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                builder: (context, state) =>
+                const ProfileScreen(),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  );
+}
