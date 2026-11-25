@@ -5,6 +5,7 @@ import 'data/auth_api.dart';
 import 'data/token_store.dart';
 import 'data/http_pet_repository.dart';
 import 'data/pet_repository.dart';
+import 'data/file_api.dart';
 import 'router.dart';
 
 const apiBase = 'http://10.0.2.2:8080';
@@ -25,6 +26,14 @@ Future<void> main() async {
     },
   );
 
+  final fileApi = FileApi(
+    apiBase,
+    tokens,
+    onUnauthorized: () {
+      appRouter.go('/login');
+    },
+  );
+
   runApp(
     MultiProvider(
       providers: [
@@ -33,6 +42,8 @@ Future<void> main() async {
         Provider<AuthApi>(create: (_) => AuthApi(apiBase, tokens)),
 
         Provider<PetRepository>.value(value: repository),
+
+        Provider<FileApi>.value(value: fileApi),
       ],
       child: const PetCareApp(),
     ),

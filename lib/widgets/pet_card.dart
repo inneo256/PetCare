@@ -1,10 +1,12 @@
-
 import 'package:flutter/material.dart';
+
+import 'pet_avatar.dart';
 
 class PetCard extends StatelessWidget {
   final String name;
   final String species;
   final String birthDate;
+  final String? imageUrl;
   final IconData icon;
   final VoidCallback onTap;
 
@@ -13,31 +15,24 @@ class PetCard extends StatelessWidget {
     required this.name,
     required this.species,
     required this.birthDate,
+    this.imageUrl,
     required this.icon,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
-        leading: CircleAvatar(
-          radius: 28,
-          backgroundColor: colorScheme.primaryContainer,
-          child: Icon(
-            icon,
-            color: colorScheme.onPrimaryContainer,
-          ),
-        ),
-        title: Text(
-          name,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
+
+        leading: PetAvatar(imageUrl: imageUrl, radius: 28, icon: icon),
+
+        title: Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
+
         subtitle: Text('$species • Дата рождения: $birthDate'),
+
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
       ),

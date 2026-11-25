@@ -14,3 +14,4 @@ class Err<T> extends Result<T> {
 
   const Err(this.msg);
 }
+

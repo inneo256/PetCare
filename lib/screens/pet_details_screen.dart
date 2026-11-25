@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../models/pet_model.dart';
+import '../widgets/pet_avatar.dart';
 
 class PetDetailsScreen extends StatelessWidget {
   final int id;
@@ -28,6 +29,7 @@ class PetDetailsScreen extends StatelessWidget {
           ),
         ],
       ),
+
       body: model.isLoading
           ? const Center(child: CircularProgressIndicator())
           : model.error != null
@@ -87,25 +89,25 @@ class PetDetailsScreen extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 48,
-                  backgroundColor: colorScheme.primaryContainer,
-                  child: Icon(
-                    Icons.pets,
-                    size: 52,
-                    color: colorScheme.onPrimaryContainer,
-                  ),
-                ),
+                // Фотография питомца с backend-сервера.
+                PetAvatar(imageUrl: pet.imageUrl, radius: 48),
+
                 const SizedBox(height: 16),
+
                 Text(
                   name,
                   style: Theme.of(context).textTheme.headlineSmall
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
+
                 const SizedBox(height: 4),
+
                 Text(species, style: Theme.of(context).textTheme.bodyLarge),
+
                 const SizedBox(height: 20),
+
                 _InfoRow(label: 'Дата рождения', value: birthDate),
+
                 const _InfoRow(label: 'Владелец', value: 'Инна'),
               ],
             ),
@@ -123,8 +125,11 @@ class PetDetailsScreen extends StatelessWidget {
                     ?.copyWith(fontWeight: FontWeight.w600),
               ),
             ),
+
             FilledButton.icon(
-              onPressed: () => context.push('/pets/vet-visits/new'),
+              onPressed: () {
+                context.push('/pets/vet-visits/new');
+              },
               icon: const Icon(Icons.add),
               label: const Text('Добавить'),
             ),

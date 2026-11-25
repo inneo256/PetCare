@@ -308,10 +308,12 @@ class _PetsScreenState extends State<PetsScreen> {
                           return false;
                         },
 
+                        // Карточка питомца с фотографией с сервера.
                         child: PetCard(
                           name: pet.name,
                           species: pet.species,
                           birthDate: pet.birthDate,
+                          imageUrl: pet.imageUrl,
                           icon: Icons.pets,
                           onTap: () => context.push('/pets/${pet.id}'),
                         ),
