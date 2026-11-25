@@ -64,10 +64,21 @@ class HttpPetRepository implements PetRepository {
   }
 
   @override
-  Future<Result<List<Pet>>> fetchAll() {
+  Future<Result<List<Pet>>> fetchAll({
+    int page = 1,
+    int limit = 20,
+    String? search,
+  }) {
+    final uri = Uri.parse('$baseUrl/pets').replace(
+      queryParameters: {
+        'page': '$page',
+        'limit': '$limit',
+        if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+      },
+    );
+
     return _request<List<Pet>>(
-      () async =>
-          http.get(Uri.parse('$baseUrl/pets'), headers: await _headers()),
+      () async => http.get(uri, headers: await _headers()),
       200,
       (response) {
         final data =
